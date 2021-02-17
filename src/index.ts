@@ -53,18 +53,23 @@ function createProgram(
 }
 
 const vertexShaderSource = `
-  attribute vec4 a_position;
+  attribute vec2 a_position;
+  uniform vec2 u_resolution;
 
   void main() {
-    gl_Position = a_position;
+    vec2 zeroToOne = a_position / u_resolution;
+    vec2 zeroToTwo = zeroToOne * 2.0;
+    vec2 clipSpace = zeroToTwo - 1.0;
+    gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
   }
 `;
 
 const fragmentShaderSource = `
   precision mediump float;
+  uniform vec4 u_color;
  
   void main() {
-    gl_FragColor = vec4(1, 0, 0.5, 1);
+    gl_FragColor = u_color;
   }
 `;
 
@@ -76,6 +81,11 @@ const fragmentShader = createShader(
 );
 
 const program = createProgram(gl, vertexShader, fragmentShader);
+const resolutionUniformLocation = gl.getUniformLocation(
+  program,
+  'u_resolution',
+);
+const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
 
 const positionBuffer = gl.createBuffer();
@@ -83,7 +93,7 @@ if (positionBuffer === null) throw new Error('Failed to create buffer!');
 
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-const positions = [0, 0, 0, 0.5, 0.7, 0];
+const positions = [100, 200, 800, 200, 100, 300, 100, 300, 800, 200, 800, 300];
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
 // RENDERING CODE
@@ -95,10 +105,12 @@ gl.clearColor(1, 1, 1, 1);
 gl.clear(gl.COLOR_BUFFER_BIT);
 
 gl.useProgram(program);
+gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
 gl.enableVertexAttribArray(positionAttributeLocation);
 
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-gl.drawArrays(gl.TRIANGLES, 0, 3);
+gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 export {};

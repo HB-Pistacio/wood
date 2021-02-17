@@ -20,7 +20,14 @@
         padding: 25px;
       }
 
+      label {
+        color: white;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+
       #wood-root {
+        margin: 24px;
         width: 540px;
         height: 360px;
         border-radius: 6px;
@@ -29,8 +36,13 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-
-    <canvas id="wood-root"></canvas>
+    <div>
+      <label for="x">x</label>
+      <input id="x" type="range" min="0" max="830" /><br />
+      <label for="y">y</label>
+      <input id="y" type="range" min="0" max="470" /><br />
+      <canvas id="wood-root"></canvas>
+    </div>
 
     <script type="module" src="/dist/index.js"></script>
     <!--

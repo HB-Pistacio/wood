@@ -52,12 +52,83 @@ function createProgram(
   throw info;
 }
 
+function setRectangle(
+  gl: WebGLRenderingContext,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  const x2 = x + width;
+  const y2 = y + height;
+
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([x, y, x2, y, x, y2, x, y2, x2, y, x2, y2]),
+    gl.STATIC_DRAW,
+  );
+}
+
+function setGeometry(gl: WebGLRenderingContext) {
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([
+      // left column
+      0,
+      0,
+      30,
+      0,
+      0,
+      150,
+      0,
+      150,
+      30,
+      0,
+      30,
+      150,
+
+      // top rung
+      30,
+      0,
+      100,
+      0,
+      30,
+      30,
+      30,
+      30,
+      100,
+      0,
+      100,
+      30,
+
+      // middle rung
+      30,
+      60,
+      67,
+      60,
+      30,
+      90,
+      30,
+      90,
+      67,
+      60,
+      67,
+      90,
+    ]),
+    gl.STATIC_DRAW,
+  );
+}
+
 const vertexShaderSource = `
   attribute vec2 a_position;
+
   uniform vec2 u_resolution;
+  uniform vec2 u_translation;
 
   void main() {
-    vec2 zeroToOne = a_position / u_resolution;
+    vec2 position = a_position + u_translation;
+
+    vec2 zeroToOne = position / u_resolution;
     vec2 zeroToTwo = zeroToOne * 2.0;
     vec2 clipSpace = zeroToTwo - 1.0;
     gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
@@ -81,36 +152,62 @@ const fragmentShader = createShader(
 );
 
 const program = createProgram(gl, vertexShader, fragmentShader);
+
 const resolutionUniformLocation = gl.getUniformLocation(
   program,
   'u_resolution',
+);
+const translationUniformLocation = gl.getUniformLocation(
+  program,
+  'u_translation',
 );
 const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
 
 const positionBuffer = gl.createBuffer();
 if (positionBuffer === null) throw new Error('Failed to create buffer!');
-
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+setGeometry(gl);
 
-const positions = [100, 200, 800, 200, 100, 300, 100, 300, 800, 200, 800, 300];
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+let translation = [0, 0];
 
-// RENDERING CODE
-resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
-gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+function drawScene(gl: WebGLRenderingContext) {
+  resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-// clear canvas
-gl.clearColor(1, 1, 1, 1);
-gl.clear(gl.COLOR_BUFFER_BIT);
+  // clear canvas
+  gl.clearColor(1, 1, 1, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
 
-gl.useProgram(program);
-gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
-gl.enableVertexAttribArray(positionAttributeLocation);
+  gl.useProgram(program);
+  gl.enableVertexAttribArray(positionAttributeLocation);
+  gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-gl.drawArrays(gl.TRIANGLES, 0, 6);
+  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+  gl.uniform2f(translationUniformLocation, translation[0], translation[1]);
+
+  gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
+
+  // Draw that rectangle
+  gl.drawArrays(gl.TRIANGLES, 0, 18);
+}
+
+drawScene(gl);
+
+const xSlider = document.querySelector('#x') as HTMLInputElement;
+const ySlider = document.querySelector('#y') as HTMLInputElement;
+
+xSlider.value = translation[0].toString();
+ySlider.value = translation[1].toString();
+
+xSlider.addEventListener('input', (e: Event) => {
+  translation[0] = parseInt((<HTMLInputElement>e.target).value);
+  drawScene(gl);
+});
+
+ySlider.addEventListener('input', (e: Event) => {
+  translation[1] = parseInt((<HTMLInputElement>e.target).value);
+  drawScene(gl);
+});
 
 export {};

@@ -52,23 +52,6 @@ function createProgram(
   throw info;
 }
 
-function setRectangle(
-  gl: WebGLRenderingContext,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-) {
-  const x2 = x + width;
-  const y2 = y + height;
-
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array([x, y, x2, y, x, y2, x, y2, x2, y, x2, y2]),
-    gl.STATIC_DRAW
-  );
-}
-
 function setGeometry(gl: WebGLRenderingContext) {
   gl.bufferData(
     gl.ARRAY_BUFFER,
@@ -175,7 +158,6 @@ function drawScene(gl: WebGLRenderingContext) {
   resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  // clear canvas
   gl.clearColor(1, 1, 1, 1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -188,7 +170,6 @@ function drawScene(gl: WebGLRenderingContext) {
 
   gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
 
-  // Draw that rectangle
   gl.drawArrays(gl.TRIANGLES, 0, 18);
 }
 

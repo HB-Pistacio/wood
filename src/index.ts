@@ -1,8 +1,8 @@
-const canvas = document.getElementById('wood-root') as HTMLCanvasElement | null;
-if (canvas === null) throw Error('No wood root!');
+const canvas = document.getElementById("wood-root") as HTMLCanvasElement | null;
+if (canvas === null) throw Error("No wood root!");
 
-const gl = canvas.getContext('webgl');
-if (gl === null) throw Error('No WebGL!');
+const gl = canvas.getContext("webgl");
+if (gl === null) throw Error("No WebGL!");
 
 function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   const dpr = window.devicePixelRatio;
@@ -22,7 +22,7 @@ function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
 
 function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
-  if (shader === null) throw Error('Failed to create shader!');
+  if (shader === null) throw Error("Failed to create shader!");
 
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
@@ -31,16 +31,16 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   // Throw error when compile status wasn't ok
   const info = gl.getShaderInfoLog(shader);
   gl.deleteShader(shader);
-  throw new Error(info ?? 'Shader failed to compile!');
+  throw new Error(info ?? "Shader failed to compile!");
 }
 
 function createProgram(
   gl: WebGLRenderingContext,
   vertexShader: WebGLShader,
-  fragmentShader: WebGLShader,
+  fragmentShader: WebGLShader
 ) {
   const program = gl.createProgram();
-  if (program === null) throw Error('Failed to create shader program!');
+  if (program === null) throw Error("Failed to create shader program!");
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
@@ -57,7 +57,7 @@ function setRectangle(
   x: number,
   y: number,
   width: number,
-  height: number,
+  height: number
 ) {
   const x2 = x + width;
   const y2 = y + height;
@@ -65,7 +65,7 @@ function setRectangle(
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array([x, y, x2, y, x, y2, x, y2, x2, y, x2, y2]),
-    gl.STATIC_DRAW,
+    gl.STATIC_DRAW
   );
 }
 
@@ -115,7 +115,7 @@ function setGeometry(gl: WebGLRenderingContext) {
       67,
       90,
     ]),
-    gl.STATIC_DRAW,
+    gl.STATIC_DRAW
   );
 }
 
@@ -148,24 +148,24 @@ const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(
   gl,
   gl.FRAGMENT_SHADER,
-  fragmentShaderSource,
+  fragmentShaderSource
 );
 
 const program = createProgram(gl, vertexShader, fragmentShader);
 
 const resolutionUniformLocation = gl.getUniformLocation(
   program,
-  'u_resolution',
+  "u_resolution"
 );
 const translationUniformLocation = gl.getUniformLocation(
   program,
-  'u_translation',
+  "u_translation"
 );
-const colorUniformLocation = gl.getUniformLocation(program, 'u_color');
-const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
+const colorUniformLocation = gl.getUniformLocation(program, "u_color");
+const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 
 const positionBuffer = gl.createBuffer();
-if (positionBuffer === null) throw new Error('Failed to create buffer!');
+if (positionBuffer === null) throw new Error("Failed to create buffer!");
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 setGeometry(gl);
 
@@ -194,18 +194,18 @@ function drawScene(gl: WebGLRenderingContext) {
 
 drawScene(gl);
 
-const xSlider = document.querySelector('#x') as HTMLInputElement;
-const ySlider = document.querySelector('#y') as HTMLInputElement;
+const xSlider = document.querySelector("#x") as HTMLInputElement;
+const ySlider = document.querySelector("#y") as HTMLInputElement;
 
 xSlider.value = translation[0].toString();
 ySlider.value = translation[1].toString();
 
-xSlider.addEventListener('input', (e: Event) => {
+xSlider.addEventListener("input", (e: Event) => {
   translation[0] = parseInt((<HTMLInputElement>e.target).value);
   drawScene(gl);
 });
 
-ySlider.addEventListener('input', (e: Event) => {
+ySlider.addEventListener("input", (e: Event) => {
   translation[1] = parseInt((<HTMLInputElement>e.target).value);
   drawScene(gl);
 });

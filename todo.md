@@ -1,2 +1,0 @@
-- [x] Read intro to WebGL
-- [ ] Make hello world with WebGL

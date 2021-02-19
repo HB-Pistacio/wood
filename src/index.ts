@@ -1,7 +1,7 @@
 const canvas = document.getElementById("wood-root") as HTMLCanvasElement | null;
 if (canvas === null) throw Error("No wood root!");
 
-const gl = canvas.getContext("webgl");
+const gl = canvas.getContext("webgl2");
 if (gl === null) throw Error("No WebGL!");
 
 function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
@@ -102,8 +102,8 @@ function setGeometry(gl: WebGLRenderingContext) {
   );
 }
 
-const vertexShaderSource = `
-  attribute vec2 a_position;
+const vertexShaderSource = `#version 300 es
+  in vec2 a_position;
 
   uniform vec2 u_resolution;
   uniform vec2 u_translation;
@@ -118,12 +118,13 @@ const vertexShaderSource = `
   }
 `;
 
-const fragmentShaderSource = `
-  precision mediump float;
+const fragmentShaderSource = `#version 300 es
+  precision highp float;
   uniform vec4 u_color;
- 
+  out vec4 outColor;
+
   void main() {
-    gl_FragColor = u_color;
+    outColor = u_color;
   }
 `;
 

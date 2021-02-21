@@ -1,8 +1,11 @@
+import { createShaderProgram } from "./core/shader";
+import { Mat3 } from "./core/math/mat3";
+
 const canvas = document.getElementById("wood-root") as HTMLCanvasElement | null;
 if (canvas === null) throw Error("No wood root!");
 
 const gl = canvas.getContext("webgl2");
-if (gl === null) throw Error("No WebGL!");
+if (gl === null) throw Error("No WebGL2!");
 
 function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   const dpr = window.devicePixelRatio;
@@ -20,39 +23,7 @@ function resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
   return needResize;
 }
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string) {
-  const shader = gl.createShader(type);
-  if (shader === null) throw Error("Failed to create shader!");
-
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === true) return shader;
-
-  // Throw error when compile status wasn't ok
-  const info = gl.getShaderInfoLog(shader);
-  gl.deleteShader(shader);
-  throw new Error(info ?? "Shader failed to compile!");
-}
-
-function createProgram(
-  gl: WebGLRenderingContext,
-  vertexShader: WebGLShader,
-  fragmentShader: WebGLShader
-) {
-  const program = gl.createProgram();
-  if (program === null) throw Error("Failed to create shader program!");
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-  if (gl.getProgramParameter(program, gl.LINK_STATUS) === true) return program;
-
-  // Throw error when compile status wasn't ok
-  const info = gl.getProgramInfoLog(program);
-  gl.deleteProgram(program);
-  throw info;
-}
-
-function setGeometry(gl: WebGLRenderingContext) {
+function setGeometry(gl: WebGL2RenderingContext) {
   gl.bufferData(
     gl.ARRAY_BUFFER,
     new Float32Array([
@@ -105,22 +76,17 @@ function setGeometry(gl: WebGLRenderingContext) {
 const vertexShaderSource = `#version 300 es
   in vec2 a_position;
 
-  uniform vec2 u_resolution;
-  uniform vec2 u_translation;
+  uniform mat3 u_matrix;
 
   void main() {
-    vec2 position = a_position + u_translation;
-
-    vec2 zeroToOne = position / u_resolution;
-    vec2 zeroToTwo = zeroToOne * 2.0;
-    vec2 clipSpace = zeroToTwo - 1.0;
-    gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+    gl_Position = vec4((u_matrix * vec3(a_position, 1)).xy, 0, 1);
   }
 `;
 
 const fragmentShaderSource = `#version 300 es
   precision highp float;
   uniform vec4 u_color;
+  
   out vec4 outColor;
 
   void main() {
@@ -128,48 +94,50 @@ const fragmentShaderSource = `#version 300 es
   }
 `;
 
-const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-const fragmentShader = createShader(
+const program = createShaderProgram(
   gl,
-  gl.FRAGMENT_SHADER,
+  vertexShaderSource,
   fragmentShaderSource
 );
 
-const program = createProgram(gl, vertexShader, fragmentShader);
-
-const resolutionUniformLocation = gl.getUniformLocation(
-  program,
-  "u_resolution"
-);
-const translationUniformLocation = gl.getUniformLocation(
-  program,
-  "u_translation"
-);
-const colorUniformLocation = gl.getUniformLocation(program, "u_color");
 const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+const matrixLocation = gl.getUniformLocation(program, "u_matrix");
+const colorLocation = gl.getUniformLocation(program, "u_color");
 
 const positionBuffer = gl.createBuffer();
 if (positionBuffer === null) throw new Error("Failed to create buffer!");
+
+const vao = gl.createVertexArray();
+if (vao === null) throw new Error("Failed to vertex array!");
+gl.bindVertexArray(vao);
+
+gl.enableVertexAttribArray(positionAttributeLocation);
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 setGeometry(gl);
 
-let translation = [0, 0];
+gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-function drawScene(gl: WebGLRenderingContext) {
+let translation = [0, 0];
+let rotationInRadians = 0;
+let scale = [1, 1];
+
+function drawScene(gl: WebGL2RenderingContext) {
   resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
   gl.clearColor(1, 1, 1, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   gl.useProgram(program);
-  gl.enableVertexAttribArray(positionAttributeLocation);
-  gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(vao);
 
-  gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-  gl.uniform2f(translationUniformLocation, translation[0], translation[1]);
+  const matrix = Mat3.projection(gl.canvas.width, gl.canvas.height);
+  matrix.translate(translation[0], translation[1]);
+  matrix.rotate(rotationInRadians);
+  matrix.scale(scale[0], scale[1]);
 
-  gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
+  gl.uniformMatrix3fv(matrixLocation, false, matrix.values);
+  gl.uniform4fv(colorLocation, [1, 0, 0, 1]);
 
   gl.drawArrays(gl.TRIANGLES, 0, 18);
 }
@@ -178,9 +146,13 @@ drawScene(gl);
 
 const xSlider = document.querySelector("#x") as HTMLInputElement;
 const ySlider = document.querySelector("#y") as HTMLInputElement;
+const angleSlider = document.querySelector("#angle") as HTMLInputElement;
+const scaleSlider = document.querySelector("#scale") as HTMLInputElement;
 
 xSlider.value = translation[0].toString();
 ySlider.value = translation[1].toString();
+angleSlider.value = "0";
+scaleSlider.value = "100";
 
 xSlider.addEventListener("input", (e: Event) => {
   translation[0] = parseInt((<HTMLInputElement>e.target).value);
@@ -189,6 +161,19 @@ xSlider.addEventListener("input", (e: Event) => {
 
 ySlider.addEventListener("input", (e: Event) => {
   translation[1] = parseInt((<HTMLInputElement>e.target).value);
+  drawScene(gl);
+});
+
+angleSlider.addEventListener("input", (e: Event) => {
+  const angleInDegrees = 360 - parseInt((<HTMLInputElement>e.target).value);
+  const angleInRadians = (angleInDegrees * Math.PI) / 180;
+  rotationInRadians = angleInRadians;
+  drawScene(gl);
+});
+
+scaleSlider.addEventListener("input", (e: Event) => {
+  const newScale = parseInt((<HTMLInputElement>e.target).value) / 100;
+  scale = [newScale, newScale];
   drawScene(gl);
 });
 

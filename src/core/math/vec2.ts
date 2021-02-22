@@ -18,6 +18,11 @@ export class Vec2 {
   add = (other: Vec2) => new Vec2(this.x + other.x, this.y + other.y);
   subtract = (other: Vec2) => new Vec2(this.x - other.x, this.y - other.y);
 
+  set = (x: number, y: number) => {
+    this.x = x;
+    this.y = y;
+  };
+
   // Utitlity
   toString = () => `Vec2(${this.x}, ${this.y})`;
   toObject = () => ({ x: this.x, y: this.y });

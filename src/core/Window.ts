@@ -15,10 +15,9 @@ export class Window {
     if (canvas === null) throw Error("No wood root!");
     this.canvas = canvas;
 
-    const gl = canvas.getContext("webgl2");
-    if (gl === null) throw Error("No WebGL2!");
-    this.gl = gl;
-
+    const _gl = canvas.getContext("webgl2");
+    if (_gl === null) throw Error("No WebGL2!");
+    this.gl = _gl;
     this._then = -1;
   }
 

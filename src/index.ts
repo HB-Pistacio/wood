@@ -3,7 +3,7 @@ import { Scene } from "./core/Scene";
 import { Window } from "./core/Window";
 
 const window = new Window("#wood-root");
-const scene = new Scene();
+const scene = new Scene(window.gl);
 
 Input.attachTo(window);
 

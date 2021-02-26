@@ -1,5 +1,5 @@
 import { createShaderProgram } from "./shader";
-import { Mat3 } from "../core/math/mat3";
+import { Mat3 } from "../core/math/Mat3";
 
 const canvas = document.getElementById("wood-root") as HTMLCanvasElement | null;
 if (canvas === null) throw Error("No wood root!");

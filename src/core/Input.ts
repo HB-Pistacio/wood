@@ -1,5 +1,5 @@
 import type { Window } from "./Window";
-import { Vec2 } from "./math/vec2";
+import { Vec2 } from "./math/Vec2";
 
 const KEYS = {
   BREAK: 3,
@@ -154,16 +154,16 @@ type ButtonCode = typeof BUTTONS[keyof typeof BUTTONS];
 const keysPressed = new Map<KeyCode, boolean>();
 const buttonsPressed = new Map<ButtonCode, boolean>();
 
-const mouseDelta = new Vec2(0, 0);
-const mousePosition = new Vec2(0, 0);
-const mouseScroll = new Vec2(0, 0);
+let mouseDelta = new Vec2(0, 0);
+let mousePosition = new Vec2(0, 0);
+let mouseScroll = new Vec2(0, 0);
 
 export const attachTo = (window: Window) => {
   window.canvas.tabIndex = 1;
   window.canvas.style.outline = "none";
 
   // Attempt to disable context menu (some browsers dont allow it)
-  document.addEventListener("contextmenu", (event) => event.preventDefault());
+  // document.addEventListener("contextmenu", (event) => event.preventDefault());
 
   window.canvas.addEventListener("keydown", (e: KeyboardEvent) =>
     keysPressed.set(e.keyCode as KeyCode, true)
@@ -183,13 +183,13 @@ export const attachTo = (window: Window) => {
 
   window.canvas.addEventListener("mousemove", (e: MouseEvent) => {
     const rect = window.canvas.getBoundingClientRect();
-    mousePosition.set(e.clientX - rect.left, e.clientY - rect.top);
+    mousePosition = new Vec2(e.clientX - rect.left, e.clientY - rect.top);
 
-    mouseDelta.set(e.movementX, e.movementY);
+    mouseDelta = new Vec2(e.movementX, e.movementY);
   });
 
   window.canvas.addEventListener("wheel", (e: WheelEvent) => {
-    mouseScroll.set(e.deltaX, e.deltaY);
+    mouseScroll = new Vec2(e.deltaX, e.deltaY);
   });
 };
 

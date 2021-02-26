@@ -1,3 +1,5 @@
+import type { Mat4 } from "./math/Mat4";
+
 function compile(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
   if (shader === null) throw Error("Failed to create shader!");
@@ -55,5 +57,10 @@ export class Shader {
 
   detach = () => {
     this.gl.useProgram(null);
+  };
+
+  uploadUniformMat4 = (name: string, mat4: Mat4) => {
+    const location = this.gl.getUniformLocation(this.program, name);
+    this.gl.uniformMatrix4fv(location, false, mat4.values);
   };
 }

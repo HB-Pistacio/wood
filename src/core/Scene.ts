@@ -1,10 +1,13 @@
 import { Shader } from "./Shader";
+import { Camera } from "./Camera";
 import {
   vertexShaderSource,
   fragmentShaderSource,
 } from "../assets/shaders/default";
+import { Vec2 } from "./math/Vec2";
 
 export class Scene {
+  camera: Camera;
   defaultShader: Shader;
   gl: WebGL2RenderingContext;
 
@@ -15,10 +18,10 @@ export class Scene {
   // prettier-ignore
   vertexArray = new Float32Array([
     // position            // color
-     0.5, -0.5, 0.0,       1.0, 0.0, 0.0, 1.0, // Bottom right 0
-    -0.5,  0.5, 0.0,       0.0, 1.0, 0.0, 1.0, // Top left     1
-     0.5,  0.5, 0.0 ,      1.0, 0.0, 1.0, 1.0, // Top right    2
-    -0.5, -0.5, 0.0,       1.0, 1.0, 0.0, 1.0, // Bottom left  3
+    100.5, 0.5, 0.0,       1.0, 0.0, 0.0, 1.0, // Bottom right 0
+    0.5, 100.5, 0.0,       0.0, 1.0, 0.0, 1.0, // Top left     1
+    100.5, 100.5, 0.0 ,      1.0, 0.0, 1.0, 1.0, // Top right    2
+    0.5, 0.5, 0.0,       1.0, 1.0, 0.0, 1.0, // Bottom left  3
   ])
 
   // prettier-ignore
@@ -34,6 +37,8 @@ export class Scene {
       vertexShaderSource,
       fragmentShaderSource
     );
+
+    this.camera = new Camera(new Vec2(-200, -300));
 
     // ============================================================
     // Generate VAO, VBO, and EBO buffer objects, and send to GPU
@@ -72,8 +77,21 @@ export class Scene {
   }
 
   update = (dt: number) => {
-    // Bind everything
+    this.camera.position = this.camera.position.subtract(
+      new Vec2(50 * dt, 20 * dt)
+    );
+
+    // console.log(this.camera.getViewMatrix().values);
+
+    // Use shader and upload uniforms
     this.defaultShader.use();
+    this.defaultShader.uploadUniformMat4(
+      "uProjection",
+      this.camera.projectionMatrix
+    );
+    this.defaultShader.uploadUniformMat4("uView", this.camera.getViewMatrix());
+
+    // Bind everything
     this.gl.bindVertexArray(this.vao);
     this.gl.enableVertexAttribArray(0);
     this.gl.enableVertexAttribArray(1);

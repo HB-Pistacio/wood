@@ -1,5 +1,11 @@
 export class Mat3 {
-  static IDENTITY = Object.freeze(new Mat3([1, 0, 0, 0, 1, 0, 0, 0, 1]));
+  // prettier-ignore
+  static IDENTITY = Object.freeze(new Mat3([
+    1, 0, 0, 
+    0, 1, 0, 
+    0, 0, 1
+  ]));
+
   static projection = (width: number, height: number) =>
     new Mat3([2.0 / width, 0, 0, 0, -2 / height, 0, -1, 1, 1]);
 

@@ -55,7 +55,7 @@ export class Window {
 
   _clear = (r: number, g: number, b: number, a: number) => {
     this.gl.clearColor(r, g, b, a);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
   };
 
   _step = (now: number) => {
@@ -63,8 +63,9 @@ export class Window {
     this._resizeCanvasToDisplaySize();
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
-    // Clear to white
-    this._clear(1, 1, 1, 1);
+    this._clear(1, 1, 1, 1); // Clear to white
+    this.gl.enable(this.gl.DEPTH_TEST); // turn on depth testing
+    this.gl.enable(this.gl.CULL_FACE); // tell webgl to cull faces
 
     if (this.scene !== undefined) {
       this.scene.update(now - this._then);

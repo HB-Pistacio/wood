@@ -1,5 +1,6 @@
 import { Shader } from "./Shader";
-import { Camera } from "./Camera";
+import { Camera, CameraFixedToCanvas } from "./Camera";
+import { CameraOrthographic } from "./Camera";
 import {
   vertexShaderSource,
   fragmentShaderSource,
@@ -690,10 +691,7 @@ export class Scene {
       fragmentShaderSource
     );
 
-    this.camera = new Camera(
-      new Vec2(0, 0),
-      new Vec2(gl.canvas.width + 100, gl.canvas.height + 100)
-    );
+    this.camera = new CameraFixedToCanvas(this.gl);
 
     // look up where the vertex data needs to go.
     const positionAttributeLocation = gl.getAttribLocation(
@@ -736,50 +734,54 @@ export class Scene {
       0,
       0
     );
-    this.x = gl.canvas.width / 2;
-    this.y = gl.canvas.height / 2;
+
+    this.x = 0;
+    this.y = -50;
     this.z = 0;
     this.xRot = 0;
     this.yRot = 0;
     this.zRot = 0;
 
-    Object.entries({
-      x: { min: 0, max: (gl.canvas as any).clientWidth },
-      y: { min: 0, max: (gl.canvas as any).clientHeight },
-      z: { min: 0, max: 100 },
-      xRot: { min: 0, max: 360 },
-      yRot: { min: 0, max: 360 },
-      zRot: { min: 0, max: 360 },
-    }).forEach(([label, sliderSettings]) =>
-      slider({
-        parentId: "#controls",
-        label,
-        // @ts-ignore
-        value: this[label],
-        // @ts-ignore
-        onChange: (value) => (this[label] = value),
-        ...sliderSettings,
-      })
-    );
+    // Object.entries({
+    //   x: { min: 0, max: (gl.canvas as any).clientWidth },
+    //   y: { min: 0, max: (gl.canvas as any).clientHeight },
+    //   z: { min: 0, max: 100 },
+    //   xRot: { min: 0, max: 360 },
+    //   yRot: { min: 0, max: 360 },
+    //   zRot: { min: 0, max: 360 },
+    // }).forEach(([label, sliderSettings]) =>
+    //   slider({
+    //     parentId: "#controls",
+    //     label,
+    //     // @ts-ignore
+    //     value: this[label],
+    //     // @ts-ignore
+    //     onChange: (value) => (this[label] = value),
+    //     ...sliderSettings,
+    //   })
+    // );
   }
 
   update = (dt: number) => {
-    this.yRot += dt * 0.2;
+    this.yRot += dt * 0.15;
 
     // Use shader and upload uniforms
     this.defaultShader.use();
 
     // Upload transformation matricies
-    this.defaultShader.uploadUniformMat4(
-      "uProjection",
-      this.camera.projectionMatrix
-    );
+    this.defaultShader.uploadUniformMat4("uProjection", this.camera.projection);
 
-    let viewMatrix = this.camera.getViewMatrix();
-    viewMatrix = viewMatrix.translate(new Vec3(this.x, this.y, this.z));
-    viewMatrix = viewMatrix.xRotate(degToRad(this.xRot));
-    viewMatrix = viewMatrix.yRotate(degToRad(this.yRot));
-    viewMatrix = viewMatrix.zRotate(degToRad(this.zRot));
+    let viewMatrix = this.camera.viewMatrix;
+    viewMatrix = viewMatrix.translate(
+      new Vec3(
+        Math.sin(-this.yRot / 200) * 250 - 50,
+        Math.sin(this.yRot / 100) * 100 - 25,
+        this.z
+      )
+    );
+    viewMatrix = viewMatrix.xRotate(degToRad(this.yRot / 3));
+    viewMatrix = viewMatrix.yRotate(degToRad(this.yRot / 2));
+    viewMatrix = viewMatrix.zRotate(degToRad(this.yRot));
 
     this.defaultShader.uploadUniformMat4("uView", viewMatrix);
 

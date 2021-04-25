@@ -14,9 +14,24 @@ export class Vec2 {
     this.y = y;
   }
 
+  get values() {
+    return [this.x, this.y];
+  }
+
   // Operations
   add = (other: Vec2) => new Vec2(this.x + other.x, this.y + other.y);
   subtract = (other: Vec2) => new Vec2(this.x - other.x, this.y - other.y);
+
+  get magnitude() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  get normalize() {
+    const magnitude = this.magnitude;
+    return magnitude > 0.000001
+      ? new Vec2(this.x / magnitude, this.y / magnitude)
+      : new Vec2(0, 0);
+  }
 
   // Utitlity
   toString = () => `Vec2(${this.x}, ${this.y})`;

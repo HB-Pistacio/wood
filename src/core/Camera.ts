@@ -1,25 +1,94 @@
 import { Mat4 } from "./math/Mat4";
-import type { Vec2 } from "./math/Vec2";
+import { Vec2 } from "./math/Vec2";
+import { Vec3 } from "./math/Vec3";
 
-export class Camera {
-  projectionMatrix: Mat4;
-  viewMatrix: Mat4;
-  position: Vec2;
+export abstract class Camera {
+  _viewMatrix: Mat4;
+  position: Vec3;
+  target: Vec3;
 
-  constructor(position: Vec2, size: Vec2) {
+  constructor(position: Vec3, lookTarget: Vec3) {
     this.position = position;
-    this.projectionMatrix = Mat4.orthographic(0, size.x, size.y, 0, 400, -400);
-    this.viewMatrix = Mat4.IDENTITY;
+    this.target = lookTarget;
+    this._viewMatrix = this.viewMatrix;
   }
 
-  getViewMatrix = () => {
-    this.viewMatrix = Mat4.IDENTITY;
-    // this.viewMatrix = Mat4.IDENTITY.lookAt(
-    //   new Vec3(this.position.x, this.position.y, 20.0),
-    //   new Vec3(this.position.x, this.position.y, -1.0),
-    //   new Vec3(0, 1, 0)
-    // );
+  get viewMatrix() {
+    return Mat4.lookAt(this.position, this.target, new Vec3(0, 1, 0)).inverse;
+  }
 
-    return this.viewMatrix;
-  };
+  get projection() {
+    return Mat4.IDENTITY;
+  }
+}
+
+export class CameraOrthographic extends Camera {
+  size: Vec2;
+
+  constructor(position: Vec3, lookTarget: Vec3, size: Vec2) {
+    super(position, lookTarget);
+    this.size = size;
+  }
+
+  get projection() {
+    return Mat4.orthographic(0, this.size.x, this.size.y, 0, 400, -400);
+  }
+}
+
+export class CameraFixedToCanvas extends Camera {
+  gl: WebGL2RenderingContext;
+
+  constructor(gl: WebGL2RenderingContext) {
+    const clientSize = new Vec2(
+      (gl.canvas as any).clientWidth,
+      (gl.canvas as any).clientHeight
+    );
+    const position = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 100);
+    const lookTarget = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 0);
+    super(position, lookTarget);
+
+    this.gl = gl;
+  }
+
+  get projection() {
+    const clientSize = new Vec2(
+      (this.gl.canvas as any).clientWidth,
+      (this.gl.canvas as any).clientHeight
+    );
+
+    this.position = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 100);
+    this.target = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 0);
+    return Mat4.orthographic(0, clientSize.x, clientSize.y, 0, 400, -400);
+  }
+}
+
+export class CameraPerspective extends Camera {
+  fieldOfViewRadians: number;
+  aspect: number;
+  zNear: number;
+  zFar: number;
+
+  constructor(
+    position: Vec3,
+    lookTarget: Vec3,
+    fieldOfViewRadians: number,
+    aspect: number,
+    zNear: number,
+    zFar: number
+  ) {
+    super(position, lookTarget);
+    this.fieldOfViewRadians = fieldOfViewRadians;
+    this.aspect = aspect;
+    this.zNear = zNear;
+    this.zFar = zFar;
+  }
+
+  get projection() {
+    return Mat4.perspective(
+      this.fieldOfViewRadians,
+      this.aspect,
+      this.zNear,
+      this.zFar
+    );
+  }
 }

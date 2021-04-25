@@ -1,3 +1,5 @@
+import { lerp } from "./interpolation";
+
 export class Vec2 {
   x: number;
   y: number;
@@ -21,6 +23,12 @@ export class Vec2 {
   // Operations
   add = (other: Vec2) => new Vec2(this.x + other.x, this.y + other.y);
   subtract = (other: Vec2) => new Vec2(this.x - other.x, this.y - other.y);
+  scale = (factor: number) => new Vec2(this.x * factor, this.y * factor);
+  lerp = (target: Vec2, t: number, smoother?: (t: number) => number) =>
+    new Vec2(
+      lerp(this.x, target.x, t, smoother),
+      lerp(this.y, target.y, t, smoother)
+    );
 
   get magnitude() {
     return Math.sqrt(this.x * this.x + this.y * this.y);

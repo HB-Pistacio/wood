@@ -73,10 +73,11 @@ export class F extends Component {
 
     // Upload transformation matricies
     this.shader.uploadUniformMat4("uProjection", projection);
-    this.shader.uploadUniformMat4(
-      "uView",
-      view.yRotate(degToRad(this.gameObject!.transform.rotation.y))
+    let viewMatrix = view.translate(this.gameObject!.transform.position);
+    viewMatrix = viewMatrix.yRotate(
+      degToRad(this.gameObject!.transform.rotation.y)
     );
+    this.shader.uploadUniformMat4("uView", viewMatrix);
 
     // Bind everything
     this.gl.bindVertexArray(this.vao);

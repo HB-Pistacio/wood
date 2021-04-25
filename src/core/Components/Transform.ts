@@ -9,7 +9,7 @@ export class Transform extends Component {
   constructor(args?: { position?: Vec3; scale?: Vec3; rotation?: Vec3 }) {
     super();
     this.position = args?.position ?? new Vec3(0, 0, 0);
-    this.scale = args?.scale ?? new Vec3(0, 0, 0);
+    this.scale = args?.scale ?? new Vec3(1, 1, 1);
     this.rotation = args?.rotation ?? new Vec3(0, 0, 0);
   }
 

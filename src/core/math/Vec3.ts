@@ -1,3 +1,5 @@
+import { lerp } from "./interpolation";
+
 export class Vec3 {
   x: number;
   y: number;
@@ -33,6 +35,15 @@ export class Vec3 {
       this.z * other.x - this.x * other.z,
       this.x * other.y - this.y * other.x
     );
+  scale = (factor: number) =>
+    new Vec3(this.x * factor, this.y * factor, this.z * factor);
+  lerp = (target: Vec3, t: number, smoother?: (t: number) => number) =>
+    new Vec3(
+      lerp(this.x, target.x, t, smoother),
+      lerp(this.y, target.y, t, smoother),
+      lerp(this.z, target.z, t, smoother)
+    );
+
   magnitude = () =>
     Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
   normalize = () => {

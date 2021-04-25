@@ -28,6 +28,7 @@ export class Window {
   start = () => {
     this.running = true;
     console.log("starting window");
+    if (this.scene !== undefined) this.scene.start();
     requestAnimationFrame(this._step);
   };
 

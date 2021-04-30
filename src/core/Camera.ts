@@ -1,3 +1,4 @@
+import { WOOD } from ".";
 import { Mat4 } from "./math/Mat4";
 import { Vec2 } from "./math/Vec2";
 import { Vec3 } from "./math/Vec3";
@@ -36,24 +37,20 @@ export class CameraOrthographic extends Camera {
 }
 
 export class CameraFixedToCanvas extends Camera {
-  gl: WebGL2RenderingContext;
-
-  constructor(gl: WebGL2RenderingContext) {
+  constructor() {
     const clientSize = new Vec2(
-      (gl.canvas as any).clientWidth,
-      (gl.canvas as any).clientHeight
+      (WOOD.canvas as any).clientWidth,
+      (WOOD.canvas as any).clientHeight
     );
     const position = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 100);
     const lookTarget = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 0);
     super(position, lookTarget);
-
-    this.gl = gl;
   }
 
   get projection() {
     const clientSize = new Vec2(
-      (this.gl.canvas as any).clientWidth,
-      (this.gl.canvas as any).clientHeight
+      (WOOD.canvas as any).clientWidth,
+      (WOOD.canvas as any).clientHeight
     );
 
     this.position = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 100);

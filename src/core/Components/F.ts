@@ -1,3 +1,4 @@
+import { WOOD } from "..";
 import {
   fragmentShaderSource,
   vertexShaderSource,
@@ -8,52 +9,56 @@ import { Shader } from "../Shader";
 import { Component } from "./index";
 
 export class F extends Component {
-  gl: WebGL2RenderingContext;
   shader: Shader;
   vao: WebGLVertexArrayObject;
 
-  constructor(gl: WebGL2RenderingContext) {
+  constructor() {
     super();
-
-    this.gl = gl;
-    this.shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    this.shader = new Shader(WOOD.gl, vertexShaderSource, fragmentShaderSource);
     // look up where the vertex data needs to go.
-    const positionAttributeLocation = gl.getAttribLocation(
+    const positionAttributeLocation = WOOD.gl.getAttribLocation(
       this.shader.program,
       "a_position"
     );
-    const colorAttributeLocation = gl.getAttribLocation(
+    const colorAttributeLocation = WOOD.gl.getAttribLocation(
       this.shader.program,
       "a_color"
     );
 
     // Create a buffer
-    const positionBuffer = gl.createBuffer();
+    const positionBuffer = WOOD.gl.createBuffer();
     // Create a vertex array object (attribute state)
-    const vao = gl.createVertexArray();
+    const vao = WOOD.gl.createVertexArray();
     this.vao = vao!;
     // and make it the one we're currently working with
-    gl.bindVertexArray(vao);
+    WOOD.gl.bindVertexArray(vao);
     // Turn on the attribute
-    gl.enableVertexAttribArray(positionAttributeLocation);
+    WOOD.gl.enableVertexAttribArray(positionAttributeLocation);
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    WOOD.gl.bindBuffer(WOOD.gl.ARRAY_BUFFER, positionBuffer);
     // Set Geometry.
-    setGeometry(gl);
+    setGeometry(WOOD.gl);
     // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+    WOOD.gl.vertexAttribPointer(
+      positionAttributeLocation,
+      3,
+      WOOD.gl.FLOAT,
+      false,
+      0,
+      0
+    );
     // create the color buffer, make it the current ARRAY_BUFFER
     // and copy in the color values
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    setColors(gl);
+    const colorBuffer = WOOD.gl.createBuffer();
+    WOOD.gl.bindBuffer(WOOD.gl.ARRAY_BUFFER, colorBuffer);
+    setColors(WOOD.gl);
     // Turn on the attribute
-    gl.enableVertexAttribArray(colorAttributeLocation);
+    WOOD.gl.enableVertexAttribArray(colorAttributeLocation);
     // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-    gl.vertexAttribPointer(
+    WOOD.gl.vertexAttribPointer(
       colorAttributeLocation,
       3,
-      gl.UNSIGNED_BYTE,
+      WOOD.gl.UNSIGNED_BYTE,
       true,
       0,
       0
@@ -80,13 +85,13 @@ export class F extends Component {
     this.shader.uploadUniformMat4("uView", viewMatrix);
 
     // Bind everything
-    this.gl.bindVertexArray(this.vao);
+    WOOD.gl.bindVertexArray(this.vao);
 
     // Draw the geometry.
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 16 * 6);
+    WOOD.gl.drawArrays(WOOD.gl.TRIANGLES, 0, 16 * 6);
 
     // Unbind everything
-    this.gl.bindVertexArray(null);
+    WOOD.gl.bindVertexArray(null);
     this.shader.detach();
   };
 }

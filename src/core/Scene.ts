@@ -2,13 +2,11 @@ import { Camera, CameraFixedToCanvas } from "./Camera";
 import type { GameObject } from "./GameObject";
 
 export class Scene {
-  gl: WebGL2RenderingContext;
   camera: Camera;
   gameObjects: Map<string, GameObject> = new Map();
 
-  constructor(gl: WebGL2RenderingContext) {
-    this.gl = gl;
-    this.camera = new CameraFixedToCanvas(this.gl);
+  constructor() {
+    this.camera = new CameraFixedToCanvas();
   }
 
   spawn = (gameObject: GameObject) =>

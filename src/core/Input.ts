@@ -1,4 +1,3 @@
-import type { Window } from "./Window";
 import { Vec2 } from "./math/Vec2";
 
 const KEYS = {
@@ -158,39 +157,50 @@ let mouseDelta = new Vec2(0, 0);
 let mousePosition = new Vec2(0, 0);
 let mouseScroll = new Vec2(0, 0);
 
-export const attachTo = (window: Window) => {
-  window.canvas.tabIndex = 1;
-  window.canvas.style.outline = "none";
+const keydown = (e: KeyboardEvent) =>
+  keysPressed.set(e.keyCode as KeyCode, true);
 
-  // Attempt to disable context menu (some browsers dont allow it)
-  // document.addEventListener("contextmenu", (event) => event.preventDefault());
+const keyup = (e: KeyboardEvent) =>
+  keysPressed.set(e.keyCode as KeyCode, false);
 
-  window.canvas.addEventListener("keydown", (e: KeyboardEvent) =>
-    keysPressed.set(e.keyCode as KeyCode, true)
-  );
+const mousedown = (e: MouseEvent) =>
+  buttonsPressed.set(e.button as ButtonCode, true);
 
-  window.canvas.addEventListener("keyup", (e: KeyboardEvent) =>
-    keysPressed.set(e.keyCode as KeyCode, false)
-  );
+const mouseup = (e: MouseEvent) =>
+  buttonsPressed.set(e.button as ButtonCode, false);
 
-  window.canvas.addEventListener("mousedown", (e: MouseEvent) =>
-    buttonsPressed.set(e.button as ButtonCode, true)
-  );
+const wheel = (e: WheelEvent) => {
+  mouseScroll = new Vec2(e.deltaX, e.deltaY);
+};
 
-  window.canvas.addEventListener("mouseup", (e: MouseEvent) =>
-    buttonsPressed.set(e.button as ButtonCode, false)
-  );
+const makeMousemove = (canvas: HTMLCanvasElement) => (e: MouseEvent) => {
+  const rect = canvas.getBoundingClientRect();
+  mousePosition = new Vec2(e.clientX - rect.left, e.clientY - rect.top);
 
-  window.canvas.addEventListener("mousemove", (e: MouseEvent) => {
-    const rect = window.canvas.getBoundingClientRect();
-    mousePosition = new Vec2(e.clientX - rect.left, e.clientY - rect.top);
+  mouseDelta = new Vec2(e.movementX, e.movementY);
+};
 
-    mouseDelta = new Vec2(e.movementX, e.movementY);
-  });
+export const attachInputToCanvas = (canvas: HTMLCanvasElement) => {
+  canvas.tabIndex = 1;
+  canvas.style.outline = "none";
 
-  window.canvas.addEventListener("wheel", (e: WheelEvent) => {
-    mouseScroll = new Vec2(e.deltaX, e.deltaY);
-  });
+  const mousemove = makeMousemove(canvas);
+  canvas.addEventListener("keydown", keydown);
+  canvas.addEventListener("keyup", keyup);
+  canvas.addEventListener("mousedown", mousedown);
+  canvas.addEventListener("mouseup", mouseup);
+  canvas.addEventListener("wheel", wheel);
+  canvas.addEventListener("mousemove", mousemove);
+
+  // Return detach function
+  return () => {
+    canvas.removeEventListener("keydown", keydown);
+    canvas.removeEventListener("keyup", keyup);
+    canvas.removeEventListener("mousedown", mousedown);
+    canvas.removeEventListener("mouseup", mouseup);
+    canvas.removeEventListener("wheel", wheel);
+    canvas.removeEventListener("mousemove", mousemove);
+  };
 };
 
 export const isButtonPressed = (button: ButtonIdentifier) =>
@@ -205,5 +215,4 @@ export const getMousePosition = () => ({
 });
 
 export const getMouseDelta = () => ({ x: mouseDelta.x, y: mouseDelta.y });
-
 export const getScroll = () => ({ x: mouseScroll.x, y: mouseScroll.y });

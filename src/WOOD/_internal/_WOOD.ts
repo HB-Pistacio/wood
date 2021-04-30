@@ -1,5 +1,5 @@
 import type { Scene } from "../Scene";
-import { attachInputToCanvas } from "../Input";
+import { attachInputToCanvas } from "./Input";
 import { WOODInitError } from "./Errors";
 import { Vec2 } from "../math/Vec2";
 

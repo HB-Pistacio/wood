@@ -1,14 +1,7 @@
-import { WOOD } from "../index";
-import {
-  fragmentShaderSource,
-  vertexShaderSource,
-} from "../../assets/shaders/default";
-import type { Mat4 } from "../math/Mat4";
-import { degToRad } from "../math/trigonometry";
-import { Shader } from "../_internal/Shader";
-import { Component } from "../_internal/Component";
+import { WOOD, degToRad, Shader, WOOD_Component, Vec3 } from "../WOOD";
+import type { Mat4 } from "../WOOD";
 
-export class F extends Component {
+export class F extends WOOD_Component {
   shader: Shader;
 
   constructor() {
@@ -18,7 +11,7 @@ export class F extends Component {
       vertexShaderSource,
       fragmentShaderSource,
       attributes: ["a_position", "a_color"],
-      uniforms: ["uProjection", "uView"],
+      uniforms: ["u_view"],
     });
 
     this.shader.bufferAttributeData({
@@ -37,20 +30,16 @@ export class F extends Component {
   }
 
   update = (deltaTime: number, projection: Mat4, view: Mat4) => {
-    // Make F go spiiiiin
-    const yRotation = this.gameObject!.transform.rotation.y + deltaTime * 0.15;
-    this.gameObject!.transform.rotation.y = yRotation;
-
     this.shader.use();
 
-    let viewMatrix = view.translate(this.gameObject!.transform.position);
-    viewMatrix = viewMatrix.yRotate(
-      degToRad(this.gameObject!.transform.rotation.y)
-    );
+    // Make F go spiiiiin
+    const { position, rotation, scale } = this.gameObject!.transform;
+    rotation.y = rotation.y + deltaTime * 0.15;
 
-    // Upload transformation matricies
-    this.shader.uploadUniformMat4("uView", viewMatrix);
-    this.shader.uploadUniformMat4("uProjection", projection);
+    view = view.translate(new Vec3(position.x, -position.y, position.z));
+    view = view.yRotate(degToRad(rotation.y));
+    view = view.scale(scale);
+    this.shader.uploadUniformMat4("u_view", projection.multiply(view));
 
     // Draw the geometry.
     WOOD.gl.drawArrays(WOOD.gl.TRIANGLES, 0, 16 * 6);
@@ -60,6 +49,31 @@ export class F extends Component {
     this.shader.detach();
   };
 }
+
+const vertexShaderSource = `#version 300 es
+  in vec4 a_position;
+  in vec4 a_color;
+
+  uniform mat4 u_view;
+
+  out vec4 f_color;
+
+  void main() {
+    f_color = a_color;
+    gl_Position = u_view * a_position;
+  }
+`;
+
+const fragmentShaderSource = `#version 300 es
+  precision highp float;
+  
+  in vec4 f_color;
+  out vec4 outColor;
+
+  void main() {
+    outColor = f_color;
+  }
+`;
 
 const F_GEOMETRY = new Float32Array([
   // left column front

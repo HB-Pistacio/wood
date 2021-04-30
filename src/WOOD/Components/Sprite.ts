@@ -1,5 +1,6 @@
 import { WOOD } from "../index";
 import { Mat4 } from "../math/Mat4";
+import { degToRad } from "../math/trigonometry";
 import { Vec2 } from "../math/Vec2";
 import { Vec3 } from "../math/Vec3";
 import { Component } from "../_internal/Component";
@@ -103,25 +104,22 @@ export class Sprite extends Component {
 
     // Transform view matrix by gameObject.transform
     const { position, rotation, scale } = this.gameObject!.transform;
+    view = view.translate(new Vec3(position.x, -position.y, position.z));
+    view = view.zRotate(degToRad(rotation.z));
     view = view.translate(new Vec3(-size.x / 2, -size.y / 2, 0)); // Move origin to center
-    view = view.translate(position);
     view = view.scale(new Vec3(size.x, size.y, 1));
     view = view.scale(scale);
-    view = view.zRotate(rotation.z);
 
-    const texturePosition = new Vec3(
-      this._start.x / this.textureSize.x,
-      this._start.y / this.textureSize.y,
-      0
+    let textureMatrix = Mat4.IDENTITY.translate(
+      new Vec3(
+        this._start.x / this.textureSize.x,
+        this._start.y / this.textureSize.y,
+        0
+      )
     );
-
-    const textureScale = new Vec3(
-      size.x / this.textureSize.x,
-      size.y / this.textureSize.y,
-      1
+    textureMatrix = textureMatrix.scale(
+      new Vec3(size.x / this.textureSize.x, size.y / this.textureSize.y, 1)
     );
-    let textureMatrix = Mat4.IDENTITY.translate(texturePosition);
-    textureMatrix = textureMatrix.scale(textureScale);
 
     this.shader.uploadUniformMat4("u_view", projection.multiply(view));
     this.shader.uploadUniformMat4("u_textureMatrix", textureMatrix);

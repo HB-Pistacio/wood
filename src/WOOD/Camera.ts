@@ -33,16 +33,17 @@ export class CameraOrthographic extends Camera {
 
 export class CameraFixedToCanvas extends Camera {
   constructor() {
-    const clientSize = WOOD.windowSize;
-    const position = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 100);
-    const lookTarget = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 0);
+    const center = WOOD.windowSize.scale(-0.5);
+    const position = new Vec3(center.x, center.y, 100);
+    const lookTarget = new Vec3(center.x, center.y, 0);
     super(position, lookTarget);
   }
 
   get projection() {
     const clientSize = WOOD.windowSize;
-    this.position = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 100);
-    this.target = new Vec3(-clientSize.x / 2, -clientSize.y / 2, 0);
+    const center = clientSize.scale(-0.5);
+    this.position = new Vec3(center.x, center.y, 100);
+    this.target = new Vec3(center.x, center.y, 0);
     return Mat4.orthographic(0, clientSize.x, clientSize.y, 0, 400, -400);
   }
 }

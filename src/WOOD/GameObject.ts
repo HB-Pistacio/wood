@@ -1,4 +1,4 @@
-import type { Component } from "./Components";
+import type { Component } from "./_internal/Component";
 import { Transform } from "./Components/Transform";
 import type { Mat4 } from "./math/Mat4";
 import type { Vec3 } from "./math/Vec3";

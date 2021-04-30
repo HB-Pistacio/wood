@@ -170,6 +170,7 @@ const mouseup = (e: MouseEvent) =>
   buttonsPressed.set(e.button as ButtonCode, false);
 
 const wheel = (e: WheelEvent) => {
+  e.preventDefault();
   mouseScroll = new Vec2(e.deltaX, e.deltaY);
 };
 
@@ -189,7 +190,7 @@ export const attachInputToCanvas = (canvas: HTMLCanvasElement) => {
   canvas.addEventListener("keyup", keyup);
   canvas.addEventListener("mousedown", mousedown);
   canvas.addEventListener("mouseup", mouseup);
-  canvas.addEventListener("wheel", wheel);
+  canvas.addEventListener("wheel", wheel, { passive: false });
   canvas.addEventListener("mousemove", mousemove);
 
   // Return detach function

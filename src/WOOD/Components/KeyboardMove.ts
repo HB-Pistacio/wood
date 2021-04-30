@@ -1,5 +1,5 @@
-import { Component } from "./index";
-import * as Input from "../../core/Input";
+import { Component } from "../_internal/Component";
+import * as Input from "../Input";
 import { Vec2 } from "../math/Vec2";
 import { Vec3 } from "../math/Vec3";
 

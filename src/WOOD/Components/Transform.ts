@@ -1,4 +1,4 @@
-import { Component } from "./index";
+import { Component } from "../_internal/Component";
 import { Vec3 } from "../math/Vec3";
 
 export class Transform extends Component {

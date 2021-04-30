@@ -1,9 +1,9 @@
-import { GameObject } from "./core/GameObject";
-import { Scene } from "./core/Scene";
-import { Vec3 } from "./core/math/Vec3";
-import { F } from "./core/Components/F";
-import { KeyboardMove } from "./core/Components/KeyboardMove";
-import { WOOD } from "./core";
+import { WOOD } from "./WOOD";
+import { GameObject } from "./WOOD/GameObject";
+import { Scene } from "./WOOD/Scene";
+import { Vec3 } from "./WOOD/math/Vec3";
+import { F } from "./WOOD/Components/F";
+import { KeyboardMove } from "./WOOD/Components/KeyboardMove";
 
 WOOD.attachTo("#wood-root");
 

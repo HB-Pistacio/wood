@@ -1,4 +1,4 @@
-import { WOOD } from ".";
+import { WOOD } from "./index";
 import { Mat4 } from "./math/Mat4";
 import { Vec2 } from "./math/Vec2";
 import { Vec3 } from "./math/Vec3";

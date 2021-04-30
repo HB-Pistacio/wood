@@ -10,15 +10,9 @@ import { Component } from "../_internal/Component";
 
 export class F extends Component {
   shader: Shader;
-  vao: WebGLVertexArrayObject;
 
   constructor() {
     super();
-
-    // Create a vertex array object (attribute state)
-    const vao = WOOD.gl.createVertexArray();
-    this.vao = vao!;
-    WOOD.gl.bindVertexArray(vao);
 
     this.shader = new Shader({
       vertexShaderSource,
@@ -47,9 +41,7 @@ export class F extends Component {
     const yRotation = this.gameObject!.transform.rotation.y + deltaTime * 0.15;
     this.gameObject!.transform.rotation.y = yRotation;
 
-    // Bind everything
     this.shader.use();
-    WOOD.gl.bindVertexArray(this.vao);
 
     let viewMatrix = view.translate(this.gameObject!.transform.position);
     viewMatrix = viewMatrix.yRotate(

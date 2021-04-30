@@ -16,10 +16,9 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
 }
 
 export class Shader {
-  vertexShaderSource: string;
-  fragmentShaderSource: string;
   program: WebGLProgram;
 
+  private vao: WebGLVertexArrayObject;
   private attributeLocations: Map<string, number> = new Map();
   private uniformLocations: Map<string, WebGLUniformLocation> = new Map();
 
@@ -50,10 +49,16 @@ export class Shader {
       // Throw error when compile status wasn't ok
       const info = WOOD.gl.getProgramInfoLog(program);
       WOOD.gl.deleteProgram(program);
-      throw info;
+      throw new Error(info ?? `Could not create program`);
     }
 
     WOOD.gl.useProgram(program);
+
+    const vao = WOOD.gl.createVertexArray();
+    if (vao === null) {
+      throw new Error(`Could not create VAO`);
+    }
+    this.vao = vao;
 
     // Look up attributes
     params.attributes.forEach((attribute) => {
@@ -73,8 +78,6 @@ export class Shader {
       this.uniformLocations.set(uniform, location);
     });
 
-    this.vertexShaderSource = params.vertexShaderSource;
-    this.fragmentShaderSource = params.fragmentShaderSource;
     this.program = program;
     WOOD.gl.useProgram(null);
   }
@@ -106,7 +109,7 @@ export class Shader {
     if (buffer === null) {
       throw new Error("Unable to create buffer");
     }
-
+    WOOD.gl.bindVertexArray(this.vao);
     WOOD.gl.bindBuffer(WOOD.gl.ARRAY_BUFFER, buffer);
     WOOD.gl.bufferData(
       WOOD.gl.ARRAY_BUFFER,
@@ -128,6 +131,7 @@ export class Shader {
 
   use = () => {
     WOOD.gl.useProgram(this.program);
+    WOOD.gl.bindVertexArray(this.vao);
   };
 
   detach = () => {

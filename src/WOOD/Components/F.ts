@@ -4,7 +4,7 @@ import {
   vertexShaderSource,
 } from "../../assets/shaders/default";
 import type { Mat4 } from "../math/Mat4";
-import { degToRad } from "../math/trig";
+import { degToRad } from "../math/trigonometry";
 import { Shader } from "../_internal/Shader";
 import { Component } from "../_internal/Component";
 

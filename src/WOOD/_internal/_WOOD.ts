@@ -1,6 +1,7 @@
 import type { Scene } from "../Scene";
 import { attachInputToCanvas } from "../Input";
 import { WOODInitError } from "./Errors";
+import { Vec2 } from "../math/Vec2";
 
 export class _WOOD {
   running: boolean = false;
@@ -41,6 +42,11 @@ export class _WOOD {
   get canvas(): HTMLCanvasElement {
     if (this._canvas === undefined) throw new WOODInitError();
     return this._canvas!;
+  }
+
+  get windowSize(): Vec2 {
+    if (this._canvas === undefined) throw new WOODInitError();
+    return new Vec2(this.canvas.clientWidth, this.canvas.clientHeight);
   }
 
   load = (scene: Scene) => {

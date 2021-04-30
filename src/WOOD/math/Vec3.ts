@@ -27,16 +27,20 @@ export class Vec3 {
   // Operations
   add = (other: Vec3) =>
     new Vec3(this.x + other.x, this.y + other.y, this.z + other.z);
+
   subtract = (other: Vec3) =>
     new Vec3(this.x - other.x, this.y - other.y, this.z - other.z);
+
   cross = (other: Vec3) =>
     new Vec3(
       this.y * other.z - this.z * other.y,
       this.z * other.x - this.x * other.z,
       this.x * other.y - this.y * other.x
     );
+
   scale = (factor: number) =>
     new Vec3(this.x * factor, this.y * factor, this.z * factor);
+
   lerp = (target: Vec3, t: number, smoother?: (t: number) => number) =>
     new Vec3(
       lerp(this.x, target.x, t, smoother),
@@ -46,12 +50,22 @@ export class Vec3 {
 
   magnitude = () =>
     Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+
   normalize = () => {
     const magnitude = this.magnitude();
     return magnitude > 0.000001
       ? new Vec3(this.x / magnitude, this.y / magnitude, this.z / magnitude)
       : new Vec3(0, 0, 0);
   };
+
+  clamp = (minimums: Vec3, maximums: Vec3) =>
+    new Vec3(
+      Math.min(Math.max(this.x, minimums.x), maximums.x),
+      Math.min(Math.max(this.y, minimums.y), maximums.y),
+      Math.min(Math.max(this.z, minimums.z), maximums.z)
+    );
+
+  clamp01 = () => this.clamp(new Vec3(0, 0, 0), new Vec3(1, 1, 1));
 
   // Utitlity
   toString = () => `Vec3(${this.x}, ${this.y}, ${this.z})`;

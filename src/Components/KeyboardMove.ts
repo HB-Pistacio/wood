@@ -13,7 +13,6 @@ export class KeyboardMove extends WOOD_Component {
 
     this.targetVelocity = direction.scale(this.speed / 10);
     this.velocity = this.velocity.lerp(this.targetVelocity, 0.1);
-
     const targetPosition = this.gameObject!.transform.position.add(
       new Vec3(this.velocity.x, this.velocity.y, 0).scale(deltaTime)
     );

@@ -1,16 +1,14 @@
-import { WOOD, Scene, GameObject, Vec3, Sprite } from "./WOOD";
+import { WOOD, Scene, GameObject, Vec3, Sprite, Vec2 } from "./WOOD";
 import { KeyboardMove } from "./Components/KeyboardMove";
 import { F } from "./Components/F";
 
 WOOD.attachTo("#wood-root");
 
-const spriteGO = new GameObject("Morio");
-
-spriteGO.addComponent(
+const sprite1 = new GameObject("sprite1");
+sprite1.addComponent(
   new Sprite("https://webgl2fundamentals.org/webgl/resources/star.jpg")
 );
-
-spriteGO.addComponent(new KeyboardMove());
+sprite1.addComponent(new KeyboardMove());
 
 const player = new GameObject("player", {
   position: new Vec3(200, 10, -100),
@@ -19,9 +17,17 @@ const player = new GameObject("player", {
 player.addComponent(new F());
 player.addComponent(new KeyboardMove());
 
+const sprite2 = new GameObject("sprite2");
+sprite2.addComponent(
+  new Sprite("https://webgl2fundamentals.org/webgl/resources/star.jpg", {
+    size: new Vec2(150, 150),
+  })
+);
+
 const scene = new Scene();
 WOOD.load(scene);
 WOOD.start();
 
 scene.spawn(player);
-scene.spawn(spriteGO);
+scene.spawn(sprite1);
+scene.spawn(sprite2);

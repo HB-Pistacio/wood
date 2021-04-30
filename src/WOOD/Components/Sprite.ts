@@ -1,89 +1,34 @@
-import { WOOD } from "../index";
-import { Mat4 } from "../math/Mat4";
-import { degToRad } from "../math/trigonometry";
-import { Vec2 } from "../math/Vec2";
-import { Vec3 } from "../math/Vec3";
+import { WOOD, Mat4, degToRad, Vec2, Vec3 } from "../index";
+
 import { Component } from "../_internal/Component";
 import { Shader } from "../_internal/Shader";
+import {
+  Texture,
+  TextureManager,
+  UNLOADED_TEXTURE,
+} from "../_internal/TextureManager";
 
 const unitRectangle = new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]);
 
 export class Sprite extends Component {
-  shader: Shader;
-
-  // Internal
   private loaded: boolean = false;
-  private texture: WebGLTexture;
-  private textureSize: Vec2 = new Vec2(1, 1);
+  private texture: Texture = UNLOADED_TEXTURE;
   private _start: Vec2;
   private _end: Vec2;
 
   constructor(url: string, options?: { offset?: Vec2; size?: Vec2 }) {
     super();
-    const texture = WOOD.gl.createTexture();
-    if (texture === null) {
-      throw new Error(`Sprite: Could not instantiate WebGLTexture`);
-    }
-    this.texture = texture;
+    if (SPRITE_SHADER === undefined) makeSpriteShader();
     this._start = options?.offset ?? new Vec2(0, 0);
     this._end = this._start.add(options?.size ?? new Vec2(1, 1));
 
-    this.shader = new Shader({
-      vertexShaderSource,
-      fragmentShaderSource,
-      attributes: ["a_position", "a_texcoord"],
-      uniforms: ["u_view", "u_textureMatrix", "u_texture"],
-    });
-
-    this.shader.use();
-
-    this.shader.bufferAttributeData({
-      attribute: "a_position",
-      data: unitRectangle,
-      size: 2,
-    });
-
-    this.shader.bufferAttributeData({
-      attribute: "a_texcoord",
-      data: unitRectangle,
-      size: 2,
-    });
-
-    // Bind texture and set wrapping
-    WOOD.gl.bindTexture(WOOD.gl.TEXTURE_2D, texture);
-    WOOD.gl.texParameteri(
-      WOOD.gl.TEXTURE_2D,
-      WOOD.gl.TEXTURE_WRAP_S,
-      WOOD.gl.CLAMP_TO_EDGE
-    );
-    WOOD.gl.texParameteri(
-      WOOD.gl.TEXTURE_2D,
-      WOOD.gl.TEXTURE_WRAP_T,
-      WOOD.gl.CLAMP_TO_EDGE
-    );
-
-    // Bind texture to image after it has been loaded
-    const image = new Image();
-    image.addEventListener("load", () => {
-      this.textureSize = new Vec2(image.width, image.height);
+    TextureManager.load(url).then((texture) => {
+      this.texture = texture;
       if (options?.size === undefined) {
-        this._end = this.textureSize;
+        this._end = this._start.add(texture.size);
       }
-
-      WOOD.gl.bindTexture(WOOD.gl.TEXTURE_2D, texture);
-      WOOD.gl.texImage2D(
-        WOOD.gl.TEXTURE_2D,
-        0,
-        WOOD.gl.RGBA,
-        WOOD.gl.RGBA,
-        WOOD.gl.UNSIGNED_BYTE,
-        image
-      );
-      WOOD.gl.generateMipmap(WOOD.gl.TEXTURE_2D);
       this.loaded = true;
     });
-    image.crossOrigin = "anonymous";
-    image.src = url;
   }
 
   update = (deltaTime: number, projection: Mat4, view: Mat4) => {
@@ -91,13 +36,13 @@ export class Sprite extends Component {
       return; // Dont draw anything until we have loaded the texture
     }
 
-    this.shader.use();
+    SPRITE_SHADER.use();
 
     // Tell shader that we are going to pipe texture 0 into u_texture
-    WOOD.gl.uniform1i(this.shader.uniform("u_texture"), 0);
+    WOOD.gl.uniform1i(SPRITE_SHADER.uniform("u_texture"), 0);
     // Bind the sprite texture to TEXTURE0
     WOOD.gl.activeTexture(WOOD.gl.TEXTURE0);
-    WOOD.gl.bindTexture(WOOD.gl.TEXTURE_2D, this.texture);
+    WOOD.gl.bindTexture(WOOD.gl.TEXTURE_2D, this.texture.texture);
 
     // Compute size of sprite
     const size = this._end.subtract(this._start);
@@ -112,20 +57,20 @@ export class Sprite extends Component {
 
     let textureMatrix = Mat4.IDENTITY.translate(
       new Vec3(
-        this._start.x / this.textureSize.x,
-        this._start.y / this.textureSize.y,
+        this._start.x / this.texture.size.x,
+        this._start.y / this.texture.size.y,
         0
       )
     );
     textureMatrix = textureMatrix.scale(
-      new Vec3(size.x / this.textureSize.x, size.y / this.textureSize.y, 1)
+      new Vec3(size.x / this.texture.size.x, size.y / this.texture.size.y, 1)
     );
 
-    this.shader.uploadUniformMat4("u_view", projection.multiply(view));
-    this.shader.uploadUniformMat4("u_textureMatrix", textureMatrix);
+    SPRITE_SHADER.uploadUniformMat4("u_view", projection.multiply(view));
+    SPRITE_SHADER.uploadUniformMat4("u_textureMatrix", textureMatrix);
     WOOD.gl.drawArrays(WOOD.gl.TRIANGLES, 0, 6);
 
-    this.shader.detach();
+    SPRITE_SHADER.detach();
   };
 }
 
@@ -160,3 +105,25 @@ const fragmentShaderSource = `#version 300 es
     outColor = texture(u_texture, v_texcoord);
   }
 `;
+
+let SPRITE_SHADER: Shader = undefined as any;
+const makeSpriteShader = () => {
+  SPRITE_SHADER = new Shader({
+    vertexShaderSource,
+    fragmentShaderSource,
+    attributes: ["a_position", "a_texcoord"],
+    uniforms: ["u_view", "u_textureMatrix", "u_texture"],
+  });
+
+  SPRITE_SHADER.bufferAttributeData({
+    attribute: "a_position",
+    data: unitRectangle,
+    size: 2,
+  });
+
+  SPRITE_SHADER.bufferAttributeData({
+    attribute: "a_texcoord",
+    data: unitRectangle,
+    size: 2,
+  });
+};

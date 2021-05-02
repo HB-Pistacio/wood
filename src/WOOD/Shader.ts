@@ -1,5 +1,5 @@
-import { WOOD } from "../index";
-import type { Mat4 } from "../math/Mat4";
+import { WOOD } from "./index";
+import type { Mat4 } from "./math/Mat4";
 
 function compile(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);

@@ -3,6 +3,8 @@ import { attachInputToCanvas } from "./Input";
 import { WOODInitError } from "./Errors";
 import { Vec } from "../math/Vec";
 import type { Mat4 } from "../math/Mat4";
+import { LOAD_WOOD_SHADERS } from "./shaders";
+import { loadShader, getShader, getTexture } from "./AssetManager";
 
 export class _WOOD {
   running: boolean = false;
@@ -26,6 +28,8 @@ export class _WOOD {
     this._gl = _gl;
 
     this.detachInput = attachInputToCanvas(canvas);
+
+    LOAD_WOOD_SHADERS();
   };
 
   detach = () => {
@@ -34,6 +38,10 @@ export class _WOOD {
     this._gl = undefined;
     this.detachInput();
   };
+
+  loadShader = loadShader;
+  getShader = getShader;
+  getTexture = getTexture;
 
   get gl(): WebGL2RenderingContext {
     if (this._gl === undefined) throw new WOODInitError();

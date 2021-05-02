@@ -14,7 +14,7 @@ export * from "./math/trigonometry";
 
 // Expose internal classes for custom components
 export { Component as WOOD_Component } from "./_internal/Component";
-export { Shader } from "./_internal/Shader";
+export { Shader } from "./Shader";
 
 // Expose components
 export * from "./Components/Transform";

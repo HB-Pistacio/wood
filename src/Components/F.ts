@@ -1,4 +1,4 @@
-import { WOOD, degToRad, Shader, WOOD_Component, Vec3 } from "../WOOD";
+import { WOOD, degToRad, Shader, WOOD_Component, Vec } from "../WOOD";
 import type { Mat4 } from "../WOOD";
 
 export class F extends WOOD_Component {
@@ -36,7 +36,7 @@ export class F extends WOOD_Component {
     const { position, rotation, scale } = this.gameObject!.transform;
     rotation.y = rotation.y + deltaTime * 0.15;
 
-    view = view.translate(new Vec3(position.x, -position.y, position.z));
+    view = view.translate(new Vec([position.x, -position.y, position.z]));
     view = view.yRotate(degToRad(rotation.y));
     view = view.scale(scale);
     this.shader.uploadUniformMat4("u_view", projection.multiply(view));

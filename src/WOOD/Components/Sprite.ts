@@ -1,4 +1,4 @@
-import { WOOD, Mat4, degToRad, Vec2, Vec3 } from "../index";
+import { WOOD, Mat4, degToRad, Vec } from "../index";
 
 import { Component } from "../_internal/Component";
 import { Shader } from "../_internal/Shader";
@@ -13,14 +13,14 @@ const unitRectangle = new Float32Array([0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1]);
 export class Sprite extends Component {
   private loaded: boolean = false;
   private texture: Texture = UNLOADED_TEXTURE;
-  private _start: Vec2;
-  private _end: Vec2;
+  private _start: Vec;
+  private _end: Vec;
 
-  constructor(url: string, options?: { offset?: Vec2; size?: Vec2 }) {
+  constructor(url: string, options?: { offset?: Vec; size?: Vec }) {
     super();
     if (SPRITE_SHADER === undefined) makeSpriteShader();
-    this._start = options?.offset ?? new Vec2(0, 0);
-    this._end = this._start.add(options?.size ?? new Vec2(1, 1));
+    this._start = options?.offset ?? new Vec([0, 0]);
+    this._end = this._start.add(options?.size ?? new Vec([1, 1]));
 
     TextureManager.load(url).then((texture) => {
       this.texture = texture;
@@ -49,21 +49,21 @@ export class Sprite extends Component {
 
     // Transform view matrix by gameObject.transform
     const { position, rotation, scale } = this.gameObject!.transform;
-    view = view.translate(new Vec3(position.x, -position.y, position.z));
+    view = view.translate(new Vec([position.x, -position.y, position.z]));
     view = view.zRotate(degToRad(rotation.z));
-    view = view.translate(new Vec3(-size.x / 2, -size.y / 2, 0)); // Move origin to center
-    view = view.scale(new Vec3(size.x, size.y, 1));
+    view = view.translate(new Vec([-size.x / 2, -size.y / 2, 0])); // Move origin to center
+    view = view.scale(new Vec([size.x, size.y, 1]));
     view = view.scale(scale);
 
     let textureMatrix = Mat4.IDENTITY.translate(
-      new Vec3(
+      new Vec([
         this._start.x / this.texture.size.x,
         this._start.y / this.texture.size.y,
-        0
-      )
+        0,
+      ])
     );
     textureMatrix = textureMatrix.scale(
-      new Vec3(size.x / this.texture.size.x, size.y / this.texture.size.y, 1)
+      new Vec([size.x / this.texture.size.x, size.y / this.texture.size.y, 1])
     );
 
     SPRITE_SHADER.uploadUniformMat4("u_view", projection.multiply(view));

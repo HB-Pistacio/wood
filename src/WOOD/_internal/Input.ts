@@ -1,4 +1,4 @@
-import { Vec2 } from "../math/Vec2";
+import { Vec } from "../math/Vec";
 
 export const KEYS = {
   BREAK: 3,
@@ -149,9 +149,9 @@ type ButtonCode = typeof BUTTONS[keyof typeof BUTTONS];
 export const inputState = {
   keysPressed: new Map<KeyCode, boolean>(),
   buttonsPressed: new Map<ButtonCode, boolean>(),
-  mouseDelta: new Vec2(0, 0),
-  mousePosition: new Vec2(0, 0),
-  mouseScroll: new Vec2(0, 0),
+  mouseDelta: new Vec([0, 0]),
+  mousePosition: new Vec([0, 0]),
+  mouseScroll: new Vec([0, 0]),
 };
 
 export type KeyIdentifier = keyof typeof KEYS;
@@ -171,16 +171,16 @@ const mouseup = (e: MouseEvent) =>
 
 const wheel = (e: WheelEvent) => {
   e.preventDefault();
-  inputState.mouseScroll = new Vec2(e.deltaX, e.deltaY);
+  inputState.mouseScroll = new Vec([e.deltaX, e.deltaY]);
 };
 
 const makeMousemove = (canvas: HTMLCanvasElement) => (e: MouseEvent) => {
   const rect = canvas.getBoundingClientRect();
-  inputState.mousePosition = new Vec2(
+  inputState.mousePosition = new Vec([
     e.clientX - rect.left,
-    e.clientY - rect.top
-  );
-  inputState.mouseDelta = new Vec2(e.movementX, e.movementY);
+    e.clientY - rect.top,
+  ]);
+  inputState.mouseDelta = new Vec([e.movementX, e.movementY]);
 };
 
 export const attachInputToCanvas = (canvas: HTMLCanvasElement) => {

@@ -1,4 +1,4 @@
-import type { Vec3 } from "./Vec3";
+import type { Vec } from "./Vec";
 
 export class Mat4 {
   static IDENTITY = Object.freeze(
@@ -40,17 +40,17 @@ export class Mat4 {
     ])
   };
 
-  static lookAt = (from: Vec3, to: Vec3, up: Vec3) => {
+  static lookAt = (from: Vec, to: Vec, up: Vec) => {
     const zAxis = from.subtract(to).normalize();
     const xAxis = up.cross(zAxis).normalize();
     const yAxis = zAxis.cross(xAxis).normalize();
 
     // prettier-ignore
     return new Mat4([
-      ...xAxis.values, 0,
-      ...yAxis.values, 0, 
-      ...zAxis.values, 0, 
-      ...from.values,  1,
+      ...xAxis.xyz, 0,
+      ...yAxis.xyz, 0, 
+      ...zAxis.xyz, 0, 
+      ...from.xyz,  1,
     ]);
   };
 
@@ -64,8 +64,8 @@ export class Mat4 {
     this.values = values;
   }
 
-  translate = (vec3: Vec3) => new Mat4(multiply(this, translation(vec3)));
-  scale = (vec3: Vec3) => new Mat4(multiply(this, scaling(vec3)));
+  translate = (vec3: Vec) => new Mat4(multiply(this, translation(vec3)));
+  scale = (vec3: Vec) => new Mat4(multiply(this, scaling(vec3)));
   xRotate = (radians: number) => new Mat4(multiply(this, xRotation(radians)));
   yRotate = (radians: number) => new Mat4(multiply(this, yRotation(radians)));
   zRotate = (radians: number) => new Mat4(multiply(this, zRotation(radians)));
@@ -76,7 +76,7 @@ export class Mat4 {
   }
 }
 
-const translation = (vec3: Vec3) =>
+const translation = (vec3: Vec) =>
   new Mat4([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, vec3.x, vec3.y, vec3.z, 1]);
 
 const xRotation = (radians: number) => {
@@ -97,7 +97,7 @@ const zRotation = (radians: number) => {
   return new Mat4([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 };
 
-const scaling = (vec3: Vec3) =>
+const scaling = (vec3: Vec) =>
   new Mat4([vec3.x, 0, 0, 0, 0, vec3.y, 0, 0, 0, 0, vec3.z, 0, 0, 0, 0, 1]);
 
 function inverse(mat: Mat4) {

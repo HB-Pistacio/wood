@@ -1,4 +1,4 @@
-import { WOOD, Scene, GameObject, Vec3, Sprite, Vec2 } from "./WOOD";
+import { WOOD, Scene, GameObject, Sprite, Vec } from "./WOOD";
 import { KeyboardMove } from "./Components/KeyboardMove";
 import { F } from "./Components/F";
 
@@ -11,8 +11,8 @@ sprite1.addComponent(
 sprite1.addComponent(new KeyboardMove());
 
 const player = new GameObject("player", {
-  position: new Vec3(200, 10, -100),
-  scale: new Vec3(1, 2, 1),
+  position: new Vec([200, 10, -100]),
+  scale: new Vec([1, 2, 1]),
 });
 player.addComponent(new F());
 player.addComponent(new KeyboardMove());
@@ -20,7 +20,7 @@ player.addComponent(new KeyboardMove());
 const sprite2 = new GameObject("sprite2");
 sprite2.addComponent(
   new Sprite("https://webgl2fundamentals.org/webgl/resources/star.jpg", {
-    size: new Vec2(150, 150),
+    size: new Vec([150, 150]),
   })
 );
 

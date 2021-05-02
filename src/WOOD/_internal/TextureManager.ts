@@ -1,7 +1,7 @@
-import { WOOD, Vec2 } from "../index";
+import { WOOD, Vec } from "../index";
 
-export type Texture = { texture: WebGLTexture; size: Vec2 };
-export const UNLOADED_TEXTURE = { texture: -1, size: new Vec2(1, 1) };
+export type Texture = { texture: WebGLTexture; size: Vec };
+export const UNLOADED_TEXTURE = { texture: -1, size: new Vec([1, 1]) };
 
 type URL = string;
 const textures: Map<URL, Texture> = new Map();
@@ -52,11 +52,11 @@ export const TextureManager = {
 
         loading.delete(url);
         const textureValue = {
-          size: new Vec2(image.width, image.height),
+          size: new Vec([image.width, image.height]),
           texture,
         };
         textures.set(url, {
-          size: new Vec2(image.width, image.height),
+          size: new Vec([image.width, image.height]),
           texture,
         });
 

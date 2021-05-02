@@ -1,7 +1,7 @@
-import type { Component } from "./_internal/Component";
 import { Transform } from "./Components/Transform";
+import type { Component } from "./_internal/Component";
 import type { Mat4 } from "./math/Mat4";
-import type { Vec3 } from "./math/Vec3";
+import type { Vec } from "./math/Vec";
 
 let idNum = 0;
 
@@ -13,9 +13,9 @@ export class GameObject {
   constructor(
     id?: string,
     transform?: {
-      position?: Vec3;
-      scale?: Vec3;
-      rotation?: Vec3;
+      position?: Vec;
+      scale?: Vec;
+      rotation?: Vec;
     }
   ) {
     this.id = id ?? `obj-${idNum++}`;

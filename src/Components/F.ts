@@ -1,7 +1,6 @@
-import { WOOD, degToRad, Shader, WOOD_Component, Vec } from "../WOOD";
-import type { Mat4 } from "../WOOD";
+import { WOOD, Component, degToRad, Shader, Vec } from "../WOOD";
 
-export class F extends WOOD_Component {
+export class F extends Component {
   shader: Shader;
 
   constructor() {

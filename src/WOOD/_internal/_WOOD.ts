@@ -1,10 +1,12 @@
 import type { Scene } from "../Scene";
 import { attachInputToCanvas } from "./Input";
 import { WOODInitError } from "./Errors";
+import { loadShader, getShader, getTexture } from "./AssetManager";
+
 import { Vec } from "../math/Vec";
 import type { Mat4 } from "../math/Mat4";
+
 import { LOAD_WOOD_SHADERS } from "./shaders";
-import { loadShader, getShader, getTexture } from "./AssetManager";
 
 export class _WOOD {
   running: boolean = false;

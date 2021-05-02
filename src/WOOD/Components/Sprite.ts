@@ -1,7 +1,6 @@
 import type { Shader } from "../Shader";
 import type { Texture } from "../Texture";
-import { WOOD, Mat4, degToRad, Vec } from "../index";
-import { Component } from "../_internal/Component";
+import { WOOD, Mat4, degToRad, Vec, Component } from "../index";
 import { isLoaded } from "../_internal/utils/isLoaded";
 
 export class Sprite extends Component {

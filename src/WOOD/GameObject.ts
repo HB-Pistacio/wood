@@ -1,10 +1,12 @@
-import { Transform } from "./Components/Transform";
-import type { Component } from "./_internal/Component";
-import type { Mat4 } from "./math/Mat4";
-import type { Vec } from "./math/Vec";
+import { Vec } from "./math/Vec";
+
+export abstract class Component {
+  gameObject: GameObject | undefined = undefined;
+  start: () => void = () => {};
+  update: (deltaTime: number) => void = () => {};
+}
 
 let idNum = 0;
-
 export class GameObject {
   id: string;
   transform: Transform;
@@ -54,5 +56,29 @@ export class GameObject {
     for (const component of this.components.values()) {
       component.update(deltaTime);
     }
+  };
+}
+
+class Transform {
+  position: Vec;
+  scale: Vec;
+  rotation: Vec;
+
+  constructor(args?: { position?: Vec; scale?: Vec; rotation?: Vec }) {
+    this.position = args?.position ?? new Vec([0, 0, 0]);
+    this.scale = args?.scale ?? new Vec([1, 1, 1]);
+    this.rotation = args?.rotation ?? new Vec([0, 0, 0]);
+  }
+
+  translate = (amount: Vec) => {
+    this.position = this.position.add(amount);
+  };
+
+  scaleBy = (amount: Vec) => {
+    this.scale = this.scale.add(amount);
+  };
+
+  rotate = (amount: Vec) => {
+    this.rotation = this.rotation.add(amount);
   };
 }

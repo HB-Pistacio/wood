@@ -1,6 +1,6 @@
-import { WOOD_Component, Vec, Input, WOOD } from "../WOOD";
+import { Vec, Input, WOOD, Component } from "../WOOD";
 
-export class KeyboardMove extends WOOD_Component {
+export class KeyboardMove extends Component {
   speed: number = 5;
   targetVelocity: Vec = new Vec([0, 0]);
   velocity: Vec = new Vec([0, 0]);

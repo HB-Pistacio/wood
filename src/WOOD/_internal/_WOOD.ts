@@ -2,14 +2,15 @@ import type { Scene } from "../Scene";
 import { attachInputToCanvas } from "./Input";
 import { WOODInitError } from "./Errors";
 import { Vec } from "../math/Vec";
+import type { Mat4 } from "../math/Mat4";
 
 export class _WOOD {
   running: boolean = false;
   scene: Scene | undefined;
   private _canvas: HTMLCanvasElement | undefined;
   private _gl: WebGL2RenderingContext | undefined;
-  private _detachInput: () => void = () => {};
-  _then: number = -1;
+  private detachInput: () => void = () => {};
+  private then: number = -1;
 
   attachTo = (canvasQuery: string) => {
     const canvas = document.querySelector(
@@ -24,14 +25,14 @@ export class _WOOD {
       throw Error(`Could not instantiate WebGL2RenderingContext`);
     this._gl = _gl;
 
-    this._detachInput = attachInputToCanvas(canvas);
+    this.detachInput = attachInputToCanvas(canvas);
   };
 
   detach = () => {
     this.stop();
     this._canvas = undefined;
     this._gl = undefined;
-    this._detachInput();
+    this.detachInput();
   };
 
   get gl(): WebGL2RenderingContext {
@@ -47,6 +48,16 @@ export class _WOOD {
   get windowSize(): Vec {
     if (this._canvas === undefined) throw new WOODInitError();
     return new Vec([this.canvas.clientWidth, this.canvas.clientHeight]);
+  }
+
+  get projection(): Mat4 {
+    if (this.scene === undefined) throw new WOODInitError();
+    return this.scene.camera.projection;
+  }
+
+  get view(): Mat4 {
+    if (this.scene === undefined) throw new WOODInitError();
+    return this.scene.camera.viewMatrix;
   }
 
   load = (scene: Scene) => {
@@ -96,11 +107,11 @@ export class _WOOD {
     this._gl!.enable(this._gl!.CULL_FACE); // tell webgl to cull faces
 
     if (this.scene !== undefined) {
-      this.scene.update(now - this._then);
+      this.scene.update(now - this.then);
     }
 
     // Request next animation frame
-    this._then = now;
+    this.then = now;
     if (this.running) {
       requestAnimationFrame(this._step);
     }

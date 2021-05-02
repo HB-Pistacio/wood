@@ -25,11 +25,7 @@ export class Scene {
 
   update = (deltaTime: number) => {
     for (const gameObject of this.gameObjects.values()) {
-      gameObject.update(
-        deltaTime,
-        this.camera.projection,
-        this.camera.viewMatrix
-      );
+      gameObject.update(deltaTime);
     }
   };
 }

@@ -29,17 +29,19 @@ export class F extends WOOD_Component {
     });
   }
 
-  update = (deltaTime: number, projection: Mat4, view: Mat4) => {
+  update = (deltaTime: number) => {
     this.shader.use();
 
     // Make F go spiiiiin
     const { position, rotation, scale } = this.gameObject!.transform;
     rotation.y = rotation.y + deltaTime * 0.15;
 
-    view = view.translate(new Vec([position.x, -position.y, position.z]));
+    let view = WOOD.view.translate(
+      new Vec([position.x, -position.y, position.z])
+    );
     view = view.yRotate(degToRad(rotation.y));
     view = view.scale(scale);
-    this.shader.uploadUniformMat4("u_view", projection.multiply(view));
+    this.shader.uploadUniformMat4("u_view", WOOD.projection.multiply(view));
 
     // Draw the geometry.
     WOOD.gl.drawArrays(WOOD.gl.TRIANGLES, 0, 16 * 6);

@@ -31,7 +31,7 @@ export class Sprite extends Component {
     });
   }
 
-  update = (deltaTime: number, projection: Mat4, view: Mat4) => {
+  update = (deltaTime: number) => {
     if (this.loaded === false) {
       return; // Dont draw anything until we have loaded the texture
     }
@@ -49,7 +49,9 @@ export class Sprite extends Component {
 
     // Transform view matrix by gameObject.transform
     const { position, rotation, scale } = this.gameObject!.transform;
-    view = view.translate(new Vec([position.x, -position.y, position.z]));
+    let view = WOOD.view.translate(
+      new Vec([position.x, -position.y, position.z])
+    );
     view = view.zRotate(degToRad(rotation.z));
     view = view.translate(new Vec([-size.x / 2, -size.y / 2, 0])); // Move origin to center
     view = view.scale(new Vec([size.x, size.y, 1]));
@@ -66,7 +68,7 @@ export class Sprite extends Component {
       new Vec([size.x / this.texture.size.x, size.y / this.texture.size.y, 1])
     );
 
-    SPRITE_SHADER.uploadUniformMat4("u_view", projection.multiply(view));
+    SPRITE_SHADER.uploadUniformMat4("u_view", WOOD.projection.multiply(view));
     SPRITE_SHADER.uploadUniformMat4("u_textureMatrix", textureMatrix);
     WOOD.gl.drawArrays(WOOD.gl.TRIANGLES, 0, 6);
 

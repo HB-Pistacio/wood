@@ -6,7 +6,6 @@ export abstract class Camera {
   _viewMatrix: Mat4;
   position: Vec;
   target: Vec;
-  protected _projection: Mat4 = Mat4.IDENTITY;
 
   constructor(position: Vec, lookTarget: Vec) {
     this.position = position;
@@ -19,14 +18,20 @@ export abstract class Camera {
   }
 
   get projection() {
-    return this._projection;
+    return Mat4.IDENTITY;
   }
 }
 
 export class CameraOrthographic extends Camera {
+  private size: Vec;
+
   constructor(position: Vec, lookTarget: Vec, size: Vec) {
     super(position, lookTarget);
-    this._projection = Mat4.orthographic(0, size.x, size.y, 0, 400, -400);
+    this.size = size;
+  }
+
+  get projection() {
+    return Mat4.orthographic(0, this.size.x, this.size.y, 0, 400, -400);
   }
 }
 

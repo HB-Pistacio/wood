@@ -50,9 +50,9 @@ export class GameObject {
     }
   };
 
-  update = (deltaTime: number, projection: Mat4, view: Mat4) => {
+  update = (deltaTime: number) => {
     for (const component of this.components.values()) {
-      component.update(deltaTime, projection, view);
+      component.update(deltaTime);
     }
   };
 }
